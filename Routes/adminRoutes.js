@@ -1,32 +1,17 @@
 const express = require('express');
 const router = express.Router();
-const {
-  getPendingPosts,
-  approvePost,
-  rejectPost,
-  getAllUsers,
-  getStatistics,
-} = require('../Controllers/adminController');
+const adminController = require('../Controllers/adminController');
 const { protect, restrictTo } = require('../Middleware/authMiddleware');
 
-// All routes are protected and restricted to admin only
+// All admin routes are protected and restricted to admin role
 router.use(protect);
-router.use(restrictTo('admin'));
+// We can use the existing roles or an 'admin' role if available
+router.use(restrictTo('admin', 'Super Admin'));
 
-// Post moderation
-router.get('/posts/pending', getPendingPosts);
-router.put('/posts/:id/approve', approvePost);
-router.put('/posts/:id/reject', rejectPost);
+// User Management
+router.get('/users', adminController.getAllUsers);
 
-// User management
-router.get('/users', getAllUsers);
 // Statistics
-router.get('/statistics', getStatistics);
-
-router.get('/debug/all-posts', async (req, res) => {
-  const db = require('../Config/mysql');
-  const rows = await db.all('SELECT * FROM posts', []);
-  res.json({ posts: rows });
-});
+router.get('/statistics', adminController.getStatistics);
 
 module.exports = router;

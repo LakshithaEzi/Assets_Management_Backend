@@ -59,70 +59,7 @@ async function init() {
     await connection.query(createRefreshTable);
     console.log("✅ MySQL: refresh_tokens table is ready");
 
-    // Create Posts Table
-    const createPostsTable = `
-      CREATE TABLE IF NOT EXISTS posts (
-        id INT PRIMARY KEY AUTO_INCREMENT,
-        title TEXT,
-        content TEXT,
-        category VARCHAR(100),
-        images TEXT,
-        author INT,
-        status VARCHAR(50) DEFAULT 'pending',
-        moderationNote TEXT,
-        moderatedBy INT,
-        moderatedAt DATETIME,
-        likes TEXT,
-        commentsCount INT DEFAULT 0,
-        viewsCount INT DEFAULT 0,
-        isActive TINYINT(1) DEFAULT 1,
-        createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
-        updatedAt DATETIME ON UPDATE CURRENT_TIMESTAMP,
-        FOREIGN KEY (author) REFERENCES users(id) ON DELETE CASCADE
-      )
-    `;
-    await connection.query(createPostsTable);
-    console.log("✅ MySQL: posts table is ready");
 
-    // Create Comments Table
-    const createCommentsTable = `
-      CREATE TABLE IF NOT EXISTS comments (
-        id INT PRIMARY KEY AUTO_INCREMENT,
-        post INT,
-        author INT,
-        content TEXT,
-        parentComment INT,
-        likes TEXT,
-        isActive TINYINT(1) DEFAULT 1,
-        createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
-        updatedAt DATETIME ON UPDATE CURRENT_TIMESTAMP,
-        FOREIGN KEY (post) REFERENCES posts(id) ON DELETE CASCADE,
-        FOREIGN KEY (author) REFERENCES users(id) ON DELETE CASCADE
-      )
-    `;
-    await connection.query(createCommentsTable);
-    console.log("✅ MySQL: comments table is ready");
-
-    // Create Notifications Table
-    const createNotificationsTable = `
-      CREATE TABLE IF NOT EXISTS notifications (
-        id INT PRIMARY KEY AUTO_INCREMENT,
-        recipient INT,
-        type VARCHAR(50),
-        title VARCHAR(255),
-        message TEXT,
-        relatedPost INT,
-        relatedComment INT,
-        actionBy INT,
-        isRead TINYINT(1) DEFAULT 0,
-        readAt DATETIME,
-        createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (recipient) REFERENCES users(id) ON DELETE CASCADE,
-        FOREIGN KEY (actionBy) REFERENCES users(id) ON DELETE CASCADE
-      )
-    `;
-    await connection.query(createNotificationsTable);
-    console.log("✅ MySQL: notifications table is ready");
 
     // Create IT Asset Categories Table
     const createAssetCategoriesTable = `

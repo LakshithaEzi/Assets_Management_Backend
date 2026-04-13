@@ -32,9 +32,7 @@ app.get("/", (req, res) => {
     version: "1.0.0",
     endpoints: {
       auth: "/api/auth",
-      posts: "/api/posts",
-      comments: "/api/comments",
-      notifications: "/api/notifications",
+
       admin: "/api/admin",
       assets: "/api/assets",
     },
@@ -43,17 +41,13 @@ app.get("/", (req, res) => {
 
 // Import routes
 const authRoutes = require("./Routes/authRoutes");
-const postRoutes = require("./Routes/postRoutes");
-const commentRoutes = require("./Routes/commentRoutes");
-const notificationRoutes = require("./Routes/notificationRoutes");
+
 const adminRoutes = require("./Routes/adminRoutes");
 const assetRoutes = require("./Routes/assetRoutes");
 
 // Use routes
 app.use("/api/auth", authRoutes);
-app.use("/api/posts", postRoutes);
-app.use("/api/comments", commentRoutes);
-app.use("/api/notifications", notificationRoutes);
+
 app.use("/api/admin", adminRoutes);
 app.use("/api/assets", assetRoutes);
 
