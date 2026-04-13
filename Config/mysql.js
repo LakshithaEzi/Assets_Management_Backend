@@ -9,7 +9,7 @@ async function createPool() {
   pool = mysql.createPool({
     host: process.env.DB_HOST || "localhost",
     user: process.env.DB_USER || "root",
-    password: process.env.DB_PASSWORD || "",
+    password: process.env.DB_PASSWORD || "1111",
     database: process.env.DB_NAME || "farm_app",
     port: process.env.DB_PORT || 3306,
     waitForConnections: true,
@@ -123,6 +123,64 @@ async function init() {
     `;
     await connection.query(createNotificationsTable);
     console.log("✅ MySQL: notifications table is ready");
+
+    // Create IT Asset Categories Table
+    const createAssetCategoriesTable = `
+      CREATE TABLE IF NOT EXISTS asset_categories (
+        id INT PRIMARY KEY AUTO_INCREMENT,
+        name VARCHAR(100) UNIQUE,
+        prefix_code VARCHAR(10) UNIQUE,
+        description TEXT,
+        isActive TINYINT(1) DEFAULT 1,
+        createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updatedAt DATETIME ON UPDATE CURRENT_TIMESTAMP
+      )
+    `;
+    await connection.query(createAssetCategoriesTable);
+    console.log("✅ MySQL: asset_categories table is ready");
+
+    // Create GRN Ledger Table
+    const createGRNLedgerTable = `
+      CREATE TABLE IF NOT EXISTS grn_ledger (
+        id INT PRIMARY KEY AUTO_INCREMENT,
+        grn_number VARCHAR(100) UNIQUE,
+        vendor_name VARCHAR(255),
+        date_received DATETIME,
+        total_value DECIMAL(10, 2),
+        received_by INT,
+        status VARCHAR(50) DEFAULT 'pending',
+        notes TEXT,
+        createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updatedAt DATETIME ON UPDATE CURRENT_TIMESTAMP,
+        FOREIGN KEY (received_by) REFERENCES users(id) ON DELETE SET NULL
+      )
+    `;
+    await connection.query(createGRNLedgerTable);
+    console.log("✅ MySQL: grn_ledger table is ready");
+
+    // Create Assets Table
+    const createAssetsTable = `
+      CREATE TABLE IF NOT EXISTS assets (
+        id INT PRIMARY KEY AUTO_INCREMENT,
+        code VARCHAR(100) UNIQUE,
+        name VARCHAR(255),
+        category_id INT,
+        serial_number VARCHAR(100),
+        status VARCHAR(50) DEFAULT 'in_stock',
+        purchased_date DATETIME,
+        price DECIMAL(10, 2),
+        grn_id INT,
+        current_owner INT,
+        location VARCHAR(100),
+        createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updatedAt DATETIME ON UPDATE CURRENT_TIMESTAMP,
+        FOREIGN KEY (category_id) REFERENCES asset_categories(id) ON DELETE SET NULL,
+        FOREIGN KEY (grn_id) REFERENCES grn_ledger(id) ON DELETE SET NULL,
+        FOREIGN KEY (current_owner) REFERENCES users(id) ON DELETE SET NULL
+      )
+    `;
+    await connection.query(createAssetsTable);
+    console.log("✅ MySQL: assets table is ready");
   } finally {
     connection.release();
   }

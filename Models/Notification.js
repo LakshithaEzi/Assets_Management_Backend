@@ -46,7 +46,7 @@ async function create(data) {
     info.lastInsert;
   const row = await db.get("SELECT * FROM notifications WHERE id = ? LIMIT 1", [id]);
   const n = mapRow(row);
-  // populate small relations
+  // populate small relations 
   if (n) {
     n.recipient = await User.findById(n.recipientId);
     if (n.actionById) n.actionBy = await User.findById(n.actionById);

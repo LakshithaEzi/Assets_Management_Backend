@@ -86,7 +86,7 @@ exports.approvePost = async (req, res) => {
 
   } catch (error) {
     console.error('Approve post error:', error);
-    res.status(500).json({
+    res.status(500).json({  
       success: false,
       message: 'Error approving post',
       error: error.message

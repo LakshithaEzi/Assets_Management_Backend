@@ -36,6 +36,7 @@ app.get("/", (req, res) => {
       comments: "/api/comments",
       notifications: "/api/notifications",
       admin: "/api/admin",
+      assets: "/api/assets",
     },
   });
 });
@@ -46,6 +47,7 @@ const postRoutes = require("./Routes/postRoutes");
 const commentRoutes = require("./Routes/commentRoutes");
 const notificationRoutes = require("./Routes/notificationRoutes");
 const adminRoutes = require("./Routes/adminRoutes");
+const assetRoutes = require("./Routes/assetRoutes");
 
 // Use routes
 app.use("/api/auth", authRoutes);
@@ -53,6 +55,7 @@ app.use("/api/posts", postRoutes);
 app.use("/api/comments", commentRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/assets", assetRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
