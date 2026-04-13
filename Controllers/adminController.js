@@ -8,14 +8,12 @@ exports.getPendingPosts = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 20;
 
-    // ✅ Use SQLite Post.find() method with proper filter
     const posts = await Post.find(
       { status: 'pending', isActive: true },
       { page, limit, sortBy: 'createdAt', order: 'desc' }
     );
 
-    // ✅ Use SQLite Post.count() method
-    const total = Post.count({ status: 'pending', isActive: true });
+    const total = await Post.count({ status: 'pending', isActive: true });
 
     res.status(200).json({
       success: true,
@@ -43,7 +41,6 @@ exports.approvePost = async (req, res) => {
     const { id } = req.params;
     const { moderationNote } = req.body;
 
-    // ✅ Use SQLite Post.findById()
     const post = await Post.findById(id);
 
     if (!post) {
@@ -60,7 +57,6 @@ exports.approvePost = async (req, res) => {
       });
     }
 
-    // ✅ Use SQLite Post.update() method
     const updatedPost = await Post.update(id, {
       status: 'approved',
       moderatedBy: req.user.id,
@@ -107,7 +103,6 @@ exports.rejectPost = async (req, res) => {
       });
     }
 
-    // ✅ Use SQLite Post.findById()
     const post = await Post.findById(id);
 
     if (!post) {
@@ -124,7 +119,6 @@ exports.rejectPost = async (req, res) => {
       });
     }
 
-    // ✅ Use SQLite Post.update() method
     const updatedPost = await Post.update(id, {
       status: 'rejected',
       moderatedBy: req.user.id,
@@ -171,15 +165,14 @@ exports.getAllUsers = async (req, res) => {
       filter.role = role;
     }
 
-    // ✅ Use SQLite User methods
-    const users = await User.find(filter, { 
-      page, 
-      limit, 
-      sortBy: 'createdAt', 
-      order: 'desc' 
+    const users = await User.find(filter, {
+      page,
+      limit,
+      sortBy: 'createdAt',
+      order: 'desc'
     });
 
-    const total = User.count(filter);
+    const total = await User.count(filter);
 
     res.status(200).json({
       success: true,
@@ -204,16 +197,15 @@ exports.getAllUsers = async (req, res) => {
 // Get Platform Statistics (Admin Only)
 exports.getStatistics = async (req, res) => {
   try {
-    // ✅ Use SQLite count methods
-    const totalUsers = User.count({ isActive: true });
-    const totalPosts = Post.count({ isActive: true });
-    const pendingPosts = Post.count({ status: 'pending', isActive: true });
-    const approvedPosts = Post.count({ status: 'approved', isActive: true });
-    const rejectedPosts = Post.count({ status: 'rejected' });
+    const totalUsers = await User.count({ isActive: true });
+    const totalPosts = await Post.count({ isActive: true });
+    const pendingPosts = await Post.count({ status: 'pending', isActive: true });
+    const approvedPosts = await Post.count({ status: 'approved', isActive: true });
+    const rejectedPosts = await Post.count({ status: 'rejected' });
 
     // Users by role
-    const adminCount = User.count({ role: 'admin', isActive: true });
-    const registeredCount = User.count({ role: 'registered', isActive: true });
+    const adminCount = await User.count({ role: 'admin', isActive: true });
+    const registeredCount = await User.count({ role: 'registered', isActive: true });
 
     // Recent activity - get recent posts
     const recentPosts = await Post.find(
@@ -244,61 +236,6 @@ exports.getStatistics = async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Error fetching statistics',
-      error: error.message
-    });
-  }
-};
-
-// Update User Role (Admin Only)
-exports.updateUserRole = async (req, res) => {
-  try {
-    const { userId } = req.params;
-    const { role } = req.body;
-
-    if (!['admin', 'registered'].includes(role)) {
-      return res.status(400).json({
-        success: false,
-        message: 'Invalid role. Must be admin or registered'
-      });
-    }
-
-    // ✅ Use SQLite User.findById()
-    const user = await User.findById(userId);
-
-    if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: 'User not found'
-      });
-    }
-
-    // Prevent self-demotion
-    if (user.id === req.user.id && role !== 'admin') {
-      return res.status(400).json({
-        success: false,
-        message: 'Cannot change your own admin role'
-      });
-    }
-
-    // ✅ Use SQLite User.update()
-    const updatedUser = await User.update(userId, { role });
-
-    res.status(200).json({
-      success: true,
-      message: `User role updated to ${role}`,
-      user: {
-        id: updatedUser.id,
-        username: updatedUser.username,
-        email: updatedUser.email,
-        role: updatedUser.role
-      }
-    });
-
-  } catch (error) {
-    console.error('Update user role error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Error updating user role',
       error: error.message
     });
   }
